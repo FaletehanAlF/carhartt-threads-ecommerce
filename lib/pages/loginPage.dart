@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
 
   static const _primaryYellow = Color(0xFFFFC72C);
   static const _oceanUrl =
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80';
+      'https://i.pinimg.com/1200x/6b/66/e4/6b66e490e4ec54c7e96dc9006374568a.jpg';
 
   @override
   void initState() {
