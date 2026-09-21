@@ -18,6 +18,10 @@ class Product {
   /// Format: 599000 -> "Rp 599.000"
   String get priceText => _formatRp(price);
 
+  /// Helper statis agar CartItem / CartPage bisa format subtotal/total
+  /// tanpa harus membuat instance Product dummy.
+  static String priceTextStatic(int value) => _formatRp(value);
+
   static String _formatRp(int value) {
     final s = value.toString();
     final buffer = StringBuffer();
