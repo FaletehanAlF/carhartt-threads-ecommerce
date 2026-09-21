@@ -73,6 +73,53 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
               );
             },
           ),
+          // Ikon cart + badge (baca state via ref.watch).
+          Consumer(
+            builder: (context, ref, _) {
+              final int count =
+                  ref.watch(cartTotalQuantityProvider);
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () => context.push('/cart'),
+                    icon: const Icon(
+                      Icons.shopping_bag_outlined,
+                      color: Colors.black,
+                    ),
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFC72C),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          count > 99 ? '99+' : '$count',
+                          style: GoogleFonts.poppins(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(
