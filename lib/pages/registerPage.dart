@@ -136,24 +136,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       Center(
                         child: Image.asset(
                           'assets/images/carhatt.png',
-                          height: 44,
+                          height: 110,
                           fit: BoxFit.contain,
                           errorBuilder: (_, e, s) => Image.asset(
                             'assets/images/logo.png',
-                            height: 44,
+                            height: 110,
                             fit: BoxFit.contain,
                             errorBuilder: (_, e, s) => Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Container(width: 36, height: 36, decoration: BoxDecoration(color: _primary, borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.shopping_bag, size: 20, color: Colors.black)),
-                                const SizedBox(width: 8),
-                                Text('carhartt', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w700)),
+                                Container(width: 48, height: 48, decoration: BoxDecoration(color: _primary, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.shopping_bag, size: 24, color: Colors.black)),
+                                const SizedBox(width: 10),
+                                Text('carhartt', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700)),
                               ],
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       Text('Create your account', style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.black, height: 1.15)),
                       const SizedBox(height: 8),
                       Text('Start your shopping journey with us', style: GoogleFonts.inter(fontSize: 14.5, color: Colors.grey.shade600, height: 1.4)),
