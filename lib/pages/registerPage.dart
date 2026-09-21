@@ -176,7 +176,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   border: Border.all(color: const Color(0xFFFFE082), width: 1.4),
                                   color: Colors.white,
                                 ),
-                                child: const Icon(Icons.camera_alt_outlined, size: 20, color: Color(0xFFFF6F2C)),
+                                child: const Icon(Icons.camera_alt_outlined, size: 20, color: Color(0xFFFFC72C)),
                               ),
                             ),
                             const SizedBox(height: 4),
