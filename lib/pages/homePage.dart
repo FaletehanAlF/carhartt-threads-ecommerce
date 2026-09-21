@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import './productsPage.dart';
-import './favoritePage.dart';
-import './profilePage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+import '../data/products.dart' as local_data;
+import '../models/product.dart';
+import '../services/api_service.dart';
+import '../services/favorites.dart';
+import '../services/product_repository.dart';
+import '../widgets/product_card.dart';
+import './favoritePage.dart';
+import './productsPage.dart';
+import './profilePage.dart';
+import 'product_detail_page.dart';
+
+// Variabel lama dipertahankan agar impor lama tidak rusak.
+// Kode baru memakai [favoriteProductIds] dari services/favorites.dart.
 final ValueNotifier<Set<String>> favoriteProducts =
     ValueNotifier<Set<String>>({});
 
@@ -18,17 +28,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentIndex = 0;
 
+  void goToProducts() {
+    setState(() => currentIndex = 1);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: IndexedStack(
         index: currentIndex,
-        children: const [
-          HomeContent(),
-          ProductsPage(),
-          FavoritePage(),
-          ProfilePage(),
+        children: [
+          HomeContent(onViewAll: goToProducts),
+          const ProductsPage(),
+          const FavoritePage(),
+          const ProfilePage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -65,36 +79,31 @@ class _HomePageState extends State<HomePage> {
 }
 
 class HomeContent extends StatefulWidget {
-  const HomeContent({super.key});
+  final VoidCallback? onViewAll;
+  const HomeContent({super.key, this.onViewAll});
 
   @override
   State<HomeContent> createState() => _HomeContentState();
 }
 
 class _HomeContentState extends State<HomeContent> {
-  void toggleFavorite(String name) {
-    final updatedFavorites =
-        Set<String>.from(favoriteProducts.value);
+  final searchController = TextEditingController();
+  String searchQuery = '';
+  String selectedCategory = 'All';
 
-    if (updatedFavorites.contains(name)) {
-      updatedFavorites.remove(name);
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
-      Fluttertoast.showToast(
-        msg: '$name dihapus dari favorite',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-      );
-    } else {
-      updatedFavorites.add(name);
-
-      Fluttertoast.showToast(
-        msg: '$name berhasil ditambahkan ke favorite',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-      );
-    }
-
-    favoriteProducts.value = updatedFavorites;
+  void openDetail(Product product) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetailPage(product: product),
+      ),
+    );
   }
 
   @override
@@ -115,7 +124,13 @@ class _HomeContentState extends State<HomeContent> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Fluttertoast.showToast(
+                msg: 'Fitur keranjang segera hadir',
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+              );
+            },
             icon: const Icon(
               Icons.shopping_bag_outlined,
               color: Colors.black,
@@ -146,12 +161,24 @@ class _HomeContentState extends State<HomeContent> {
             ),
             const SizedBox(height: 22),
             TextField(
+              controller: searchController,
+              textInputAction: TextInputAction.search,
+              onChanged: (v) => setState(() => searchQuery = v),
               decoration: InputDecoration(
                 hintText: 'Search products...',
                 prefixIcon: const Icon(
                   Icons.search,
                   color: Colors.grey,
                 ),
+                suffixIcon: searchQuery.isNotEmpty
+                    ? IconButton(
+                        onPressed: () {
+                          searchController.clear();
+                          setState(() => searchQuery = '');
+                        },
+                        icon: const Icon(Icons.clear, color: Colors.grey),
+                      )
+                    : null,
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -174,6 +201,20 @@ class _HomeContentState extends State<HomeContent> {
                   width: double.infinity,
                   height: 180,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: const Color(0xFFFFC72C),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'CARHARTT\nWORKWEAR',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -190,14 +231,9 @@ class _HomeContentState extends State<HomeContent> {
               height: 45,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: [
-                  categoryItem('All'),
-                  categoryItem('T-Shirt'),
-                  categoryItem('Hoodie'),
-                  categoryItem('Jacket'),
-                  categoryItem('Pants'),
-                  categoryItem('Accessories'),
-                ],
+                children: local_data.productCategories
+                    .map((c) => _categoryItem(c))
+                    .toList(),
               ),
             ),
             const SizedBox(height: 28),
@@ -211,46 +247,67 @@ class _HomeContentState extends State<HomeContent> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  'View All',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFB8860B),
+                GestureDetector(
+                  onTap: widget.onViewAll,
+                  child: Text(
+                    'View All',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFB8860B),
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 18,
-              childAspectRatio: 0.68,
-              children: [
-                productItem(
-                  'K87 T-Shirt',
-                  'Rp 599.000',
-                  'https://i.pinimg.com/1200x/27/d1/a0/27d1a069410f499dc4c91b2aee7306c0.jpg',
-                ),
-                productItem(
-                  'Midweight Hoodie',
-                  'Rp 899.000',
-                  'https://i.pinimg.com/1200x/ee/1a/b4/ee1ab49c70520f6f8d8b00c96cab6bdf.jpg',
-                ),
-                productItem(
-                  'Detroit Jacket',
-                  'Rp 1.499.000',
-                  'https://i.pinimg.com/736x/62/59/51/625951708719a29228a1ddff35fa507d.jpg',
-                ),
-                productItem(
-                  'Double Knee Pants',
-                  'Rp 1.099.000',
-                  'https://i.pinimg.com/1200x/b0/a4/91/b0a491f7b23b43b243f8e9cbc7c2d88c.jpg',
-                ),
-              ],
+            ValueListenableBuilder<List<Product>>(
+              valueListenable:
+                  ProductRepository.instance.productsNotifier,
+              builder: (context, all, _) {
+                var filtered = ApiService.filter(
+                  source: all,
+                  category: selectedCategory,
+                  query: searchQuery,
+                );
+                // Di Home tampilkan maksimal 4 produk populer.
+                final show = filtered.take(4).toList();
+                if (show.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    child: Center(
+                      child: Text(
+                        searchQuery.isNotEmpty
+                            ? 'Tidak ada produk untuk "$searchQuery"'
+                            : 'Tidak ada produk di kategori ini.',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: show.length,
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 18,
+                    childAspectRatio: 0.68,
+                  ),
+                  itemBuilder: (context, i) {
+                    final p = show[i];
+                    return ProductCard(
+                      product: p,
+                      onTap: () => openDetail(p),
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
@@ -258,116 +315,29 @@ class _HomeContentState extends State<HomeContent> {
     );
   }
 
-  Widget categoryItem(String title) {
-    return Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: title == 'All'
-            ? const Color(0xFFFFC72C)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        title,
-        style: GoogleFonts.poppins(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
+  Widget _categoryItem(String title) {
+    final selected = title == selectedCategory;
+    return GestureDetector(
+      onTap: () => setState(() => selectedCategory = title),
+      child: Container(
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFFFFC72C) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: selected
+              ? null
+              : Border.all(color: Colors.grey.shade200),
+        ),
+        child: Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
-    );
-  }
-
-  Widget productItem(
-    String name,
-    String price,
-    String image,
-  ) {
-    return ValueListenableBuilder<Set<String>>(
-      valueListenable: favoriteProducts,
-      builder: (context, favorites, child) {
-        final bool isFavorite = favorites.contains(name);
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16),
-                      ),
-                      child: Image.network(
-                        image,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            toggleFavorite(name);
-                          },
-                          icon: Icon(
-                            isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: isFavorite
-                                ? Colors.red
-                                : Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      price,
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFFB8860B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
