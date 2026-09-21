@@ -219,6 +219,30 @@ final GoRouter appRouter = GoRouter(
   },
 );
 
+/// Helper: bangun [OrderDetailPage] dari extra atau path param.
+///
+/// Prioritas:
+/// 1. extra is Order -> langsung pakai (paling cepat, tanpa lookup).
+/// 2. path param :orderId / :id -> lookup via OrderDetailPage yang akan
+///    cari di ordersProvider (Consumer).
+/// 3. Kalau tidak ada -> tetap tampilkan OrderDetailPage dengan orderId
+///    agar halaman bisa tampilkan "tidak ditemukan" dengan aman.
+Widget _buildOrderDetail(GoRouterState state) {
+  final Object? extra = state.extra;
+  if (extra is Order) {
+    return OrderDetailPage(order: extra);
+  }
+  final String? orderId = state.pathParameters['orderId'] ?? state.pathParameters['id'];
+  if (orderId != null && orderId.isNotEmpty) {
+    return OrderDetailPage(orderId: orderId, order: null);
+  }
+  // Fallback: extra mungkin Map {order: Order}
+  if (extra is Map && extra['order'] is Order) {
+    return OrderDetailPage(order: extra['order'] as Order);
+  }
+  return OrderDetailPage(orderId: orderId);
+}
+
 /// Helper: bangun [ProductDetailPage] dari path param + extra.
 ///
 /// Prioritas:
