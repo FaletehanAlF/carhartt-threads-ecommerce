@@ -18,10 +18,11 @@ class OrdersPage extends ConsumerWidget {
     final List<Order> orders = ref.watch(ordersProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xFFF8F8F8),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           onPressed: () {
             if (context.canPop()) {
@@ -37,17 +38,17 @@ class OrdersPage extends ConsumerWidget {
           orders.isEmpty ? 'Riwayat Pesanan' : 'Pesanan (${orders.length})',
           style: GoogleFonts.poppins(
             color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: orders.isEmpty
           ? _EmptyOrders(onBrowse: () => context.go('/home'))
           : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               itemCount: orders.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 return _OrderCard(order: orders[index]);
               },
