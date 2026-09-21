@@ -1,0 +1,6 @@
+{
+  "dart.evaluateGettersInDebugViews": false,
+  "dart.previewFlutterUiGuides": false,
+  "dart.previewFlutterUiGuidesCustomTracking": false,
+  "dart.flutterHotReloadOnSave": "manual"
+}
