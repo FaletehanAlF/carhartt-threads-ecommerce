@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/cart_item.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
+import '../providers/orders_provider.dart';
 
 /// Ongkos kirim flat sementara (tahap awal).
 ///
@@ -19,7 +20,8 @@ const int flatShippingCost = 10000;
 /// - Baca state: `ref.watch(cartProvider)` / `ref.watch(cartTotalPriceProvider)`
 /// - Tidak ada data dummy, tidak ada state management baru.
 /// - Form alamat hanya local state (TextEditingController) tahap pertama.
-/// - Masuk checkout TIDAK menghapus cart; kembali ke Cart item tetap ada.
+/// - Masuk checkout TIDAK menghapus cart; Cart baru dikosongkan setelah
+///   pesanan berhasil dibuat (tombol Bayar Sekarang).
 class CheckoutPage extends ConsumerStatefulWidget {
   const CheckoutPage({super.key});
 
@@ -44,7 +46,12 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     super.dispose();
   }
 
-  void _payNow(int total) {
+  void _payNow({
+    required List<CartItem> cart,
+    required int subtotal,
+    required int shipping,
+    required int total,
+  }) {
     // Validasi ringan alamat (tahap pertama, local state saja).
     if (nameController.text.trim().isEmpty ||
         phoneController.text.trim().isEmpty ||
@@ -58,15 +65,32 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       );
       return;
     }
-    // BELUM terhubung ke payment gateway — hanya feedback.
+    if (cart.isEmpty) return;
+
+    // Buat pesanan dari snapshot Cart (Riverpod), lalu kosongkan Cart.
+    // Payment gateway BELUM terhubung — pesanan berstatus "Diproses".
+    final order = ref.read(ordersProvider.notifier).placeOrder(
+          items: cart,
+          receiverName: nameController.text,
+          phone: phoneController.text,
+          address: addressController.text,
+          city: cityController.text,
+          zip: zipController.text,
+          subtotal: subtotal,
+          shipping: shipping,
+          total: total,
+        );
+    ref.read(cartProvider.notifier).clear();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Pembayaran ${Product.priceTextStatic(total)} belum terhubung. '
-          'Midtrans/payment menyusul.',
+          'Pesanan ${order.id} dibuat! '
+          'Total ${Product.priceTextStatic(total)} (bayar menyusul).',
         ),
       ),
     );
+    context.go('/orders');
   }
 
   @override
@@ -149,7 +173,12 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                       width: double.infinity,
                       height: 54,
                       child: ElevatedButton(
-                        onPressed: () => _payNow(total),
+                        onPressed: () => _payNow(
+                          cart: cart,
+                          subtotal: subtotal,
+                          shipping: shipping,
+                          total: total,
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFFC72C),
                           foregroundColor: Colors.black,
