@@ -319,11 +319,18 @@ class _CartSummary extends ConsumerWidget {
               height: 54,
               child: ElevatedButton(
                 onPressed: () {
-                  Fluttertoast.showToast(
-                    msg: 'Checkout segera hadir',
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                  );
+                  // Cart tidak pernah kosong di sini (empty state terpisah),
+                  // tapi tetap jaga agar tidak bisa lanjut saat kosong.
+                  if (ref.watch(cartProvider).isEmpty) {
+                    Fluttertoast.showToast(
+                      msg: 'Cart masih kosong',
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                    return;
+                  }
+                  // Masuk checkout TANPA menghapus item cart.
+                  context.push('/checkout');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFFC72C),

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'models/product.dart';
 import 'pages/cart_page.dart';
+import 'pages/checkout_page.dart';
 import 'pages/favoritePage.dart';
 import 'pages/homePage.dart';
 import 'pages/loginPage.dart';
@@ -24,6 +25,7 @@ import 'services/product_repository.dart';
 /// '/favorites'     -> [FavoritePage]
 /// '/profile'       -> [ProfilePage]
 /// '/cart'          -> [CartPage] (Riverpod)
+/// '/checkout'      -> [CheckoutPage] (data dari Cart, Riverpod)
 /// '/product/:id'   -> [ProductDetailPage] (via extra Product atau lookup by id)
 ///
 /// Contoh dari pub.dev diperbaiki:
@@ -139,6 +141,13 @@ final GoRouter appRouter = GoRouter(
       name: 'cart',
       builder: (BuildContext context, GoRouterState state) {
         return const CartPage();
+      },
+    ),
+    GoRoute(
+      path: '/checkout',
+      name: 'checkout',
+      builder: (BuildContext context, GoRouterState state) {
+        return const CheckoutPage();
       },
     ),
     GoRoute(
