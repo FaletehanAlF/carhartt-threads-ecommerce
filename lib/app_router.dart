@@ -7,10 +7,12 @@ import 'pages/checkout_page.dart';
 import 'pages/favoritePage.dart';
 import 'pages/homePage.dart';
 import 'pages/loginPage.dart';
+import 'pages/orders_page.dart';
 import 'pages/product_detail_page.dart';
 import 'pages/productsPage.dart';
 import 'pages/profilePage.dart';
 import 'pages/registerPage.dart';
+import 'pages/settings_page.dart';
 import 'services/auth_service.dart';
 import 'services/product_repository.dart';
 
