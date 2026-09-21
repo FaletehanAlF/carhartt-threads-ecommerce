@@ -173,7 +173,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 height: 44,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: const Color(0xFFFFB89A), width: 1.4),
+                                  border: Border.all(color: const Color(0xFFFFE082), width: 1.4),
                                   color: Colors.white,
                                 ),
                                 child: const Icon(Icons.camera_alt_outlined, size: 20, color: Color(0xFFFF6F2C)),
