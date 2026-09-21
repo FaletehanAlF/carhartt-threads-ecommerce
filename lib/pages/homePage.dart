@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../data/products.dart' as local_data;
@@ -10,7 +11,6 @@ import '../widgets/product_card.dart';
 import './favoritePage.dart';
 import './productsPage.dart';
 import './profilePage.dart';
-import 'product_detail_page.dart';
 
 // Variabel lama dipertahankan agar impor lama tidak rusak.
 // Kode baru memakai [favoriteProductIds] dari services/favorites.dart.
