@@ -18,7 +18,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool obscurePassword = true;
   bool loading = false;
 
-  static const _primaryOrange = Color(0xFFFF6F2C);
+  static const _primaryYellow = Color(0xFFFFC72C);
   static const _oceanUrl =
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80';
 
@@ -77,7 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Positioned.fill(
@@ -124,7 +124,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     errorBuilder: (_, e, s) => Image.asset(
                       'assets/images/logo.png',
                       fit: BoxFit.contain,
-                      errorBuilder: (_, e, s) => const Icon(Icons.shopping_bag, color: Color(0xFFFF6F2C)),
+                      errorBuilder: (_, e, s) => const Icon(Icons.shopping_bag, color: Color(0xFFFFC72C)),
                     ),
                   ),
                 ),
@@ -133,16 +133,20 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                  boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 24, offset: Offset(0, -4))],
-                ),
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.75,
+              ),
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 24, offset: Offset(0, -4))],
+              ),
+              child: SingleChildScrollView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: EdgeInsets.fromLTRB(24, 28, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
+                physics: const BouncingScrollPhysics(),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,

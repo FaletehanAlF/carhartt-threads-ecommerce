@@ -231,7 +231,7 @@ class _LoginPageState extends State<LoginPage> {
                         fillColor: Colors.white,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                         enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade300)),
-                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: _primaryOrange, width: 1.4)),
+                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: _primaryYellow, width: 1.4)),
                         border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade300)),
                       ),
                     ),
@@ -257,7 +257,7 @@ class _LoginPageState extends State<LoginPage> {
                         fillColor: Colors.white,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                         enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade300)),
-                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: _primaryOrange, width: 1.4)),
+                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: _primaryYellow, width: 1.4)),
                         border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade300)),
                       ),
                     ),
@@ -266,7 +266,7 @@ class _LoginPageState extends State<LoginPage> {
                       alignment: Alignment.centerRight,
                       child: Text(
                         'Forgot Password?',
-                        style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: const Color(0xFFFF8A5B)),
+                        style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: const Color(0xFFD49A00)),
                       ),
                     ),
                     const SizedBox(height: 22),
@@ -276,7 +276,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: loading ? null : login,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _primaryOrange,
+                          backgroundColor: _primaryYellow,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
@@ -322,7 +322,7 @@ class _LoginPageState extends State<LoginPage> {
                         Text("Don't have an account? ", style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600)),
                         GestureDetector(
                           onTap: () => context.push('/register'),
-                          child: Text('Sign up', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: _primaryOrange)),
+                          child: Text('Sign up', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: _primaryYellow)),
                         ),
                       ],
                     ),
