@@ -105,9 +105,26 @@ class _CartTile extends ConsumerWidget {
   final CartItem item;
   const _CartTile({required this.item});
 
+  void _handleRemoveItem(WidgetRef ref) {
+    ref.read(cartProvider.notifier).removeItem(item);
+    Fluttertoast.showToast(
+      msg: '${item.product.name} dihapus dari cart',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+    );
+  }
+
+  void _handleIncreaseQuantity(WidgetRef ref) {
+    ref.read(cartProvider.notifier).increaseQuantity(item.product.id, size: item.size);
+  }
+
+  void _handleDecreaseQuantity(WidgetRef ref) {
+    ref.read(cartProvider.notifier).decreaseQuantity(item.product.id, size: item.size);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final p = item.product;
+    final Product product = item.product;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
