@@ -136,24 +136,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       Center(
                         child: Image.asset(
                           'assets/images/carhatt.png',
-                          height: 110,
+                          height: 160,
                           fit: BoxFit.contain,
                           errorBuilder: (_, e, s) => Image.asset(
                             'assets/images/logo.png',
-                            height: 110,
+                            height: 160,
                             fit: BoxFit.contain,
                             errorBuilder: (_, e, s) => Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Container(width: 48, height: 48, decoration: BoxDecoration(color: _primary, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.shopping_bag, size: 24, color: Colors.black)),
+                                Container(width: 56, height: 56, decoration: BoxDecoration(color: _primary, borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.shopping_bag, size: 28, color: Colors.black)),
                                 const SizedBox(width: 10),
-                                Text('carhartt', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700)),
+                                Text('carhartt', style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w700)),
                               ],
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
                       Text('Create your account', style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.black, height: 1.15)),
                       const SizedBox(height: 8),
                       Text('Start your shopping journey with us', style: GoogleFonts.inter(fontSize: 14.5, color: Colors.grey.shade600, height: 1.4)),
