@@ -75,7 +75,7 @@ class CartPage extends ConsumerWidget {
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                     itemCount: cart.length,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final item = cart[index];
