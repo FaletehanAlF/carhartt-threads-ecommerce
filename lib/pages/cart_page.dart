@@ -267,6 +267,19 @@ class _CartSummary extends ConsumerWidget {
 
   static const _yellow = Color(0xFFFFC72C);
 
+  void _handleCheckout(BuildContext context, WidgetRef ref) {
+    final bool isCartEmpty = ref.read(cartProvider).isEmpty;
+    if (isCartEmpty) {
+      Fluttertoast.showToast(
+        msg: 'Cart masih kosong',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+      return;
+    }
+    context.push('/checkout');
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
@@ -319,13 +332,7 @@ class _CartSummary extends ConsumerWidget {
               width: double.infinity,
               height: 54,
               child: ElevatedButton(
-                onPressed: () {
-                  if (ref.watch(cartProvider).isEmpty) {
-                    Fluttertoast.showToast(msg: 'Cart masih kosong', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
-                    return;
-                  }
-                  context.push('/checkout');
-                },
+                onPressed: () => _handleCheckout(context, ref),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _yellow,
                   foregroundColor: Colors.black,
