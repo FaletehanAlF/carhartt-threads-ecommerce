@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'pages/loginPage.dart';
+
+import 'app_router.dart';
 
 void main() {
   runApp(const CarharttApp());
@@ -10,11 +11,10 @@ class CarharttApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Carhartt Shop',
-
-      home: const LoginPage(),
+      routerConfig: appRouter,
     );
   }
 }

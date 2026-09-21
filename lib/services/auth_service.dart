@@ -4,6 +4,8 @@
 /// dan sesi login aktif. Variabel global [registeredName],
 /// [registeredEmail], [registeredPassword] dipertahankan agar
 /// file lama yang mengimpornya tetap jalan.
+import 'package:flutter/foundation.dart';
+
 String registeredName = '';
 String registeredEmail = '';
 String registeredPassword = '';
@@ -14,6 +16,10 @@ class AuthService {
 
   final Map<String, _User> _usersByEmail = {};
   _User? _currentUser;
+
+  /// Didengarkan oleh GoRouter (refreshListenable) agar redirect
+  /// auth (login/logout) berjalan otomatis tanpa bug.
+  final ValueNotifier<bool> authNotifier = ValueNotifier<bool>(false);
 
   String? get currentName => _currentUser?.name;
   String? get currentEmail => _currentUser?.email;
@@ -71,11 +77,13 @@ class AuthService {
     registeredName = user.name;
     registeredEmail = user.email;
     registeredPassword = user.password;
+    authNotifier.value = true;
     return null;
   }
 
   void logout() {
     _currentUser = null;
+    authNotifier.value = false;
   }
 
   bool _isValidEmail(String email) {

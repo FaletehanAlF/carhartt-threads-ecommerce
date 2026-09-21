@@ -11,7 +11,9 @@ class ProductRepository {
   static final ProductRepository instance = ProductRepository._();
 
   final ValueNotifier<List<Product>> productsNotifier =
-      ValueNotifier<List<Product>>(List.of(local.products));
+      ValueNotifier<List<Product>>(
+    List<Product>.from(local.products),
+  );
 
   final ValueNotifier<String> sourceNotifier =
       ValueNotifier<String>('Offline • Lokal');
@@ -35,6 +37,10 @@ class ProductRepository {
 
   /// Muat dari jaringan (dio dulu, lalu http, lalu lokal).
   /// Dipanggil sekali saat ProductsPage dibuka + saat user refresh.
+  ///
+  /// Dijamin tidak pernah mengisi notifier dengan tipe yang salah:
+  /// setiap hasil dikopi ke `List<Product>` baru, dan semua error
+  /// (termasuk di Flutter Web) jatuh ke katalog lokal.
   Future<void> refresh() async {
     if (loadingNotifier.value) return;
     loadingNotifier.value = true;
@@ -44,7 +50,7 @@ class ProductRepository {
         final viaDio =
             await ApiService.instance.fetchProductsWithDio();
         if (viaDio.isNotEmpty) {
-          productsNotifier.value = viaDio;
+          productsNotifier.value = List<Product>.from(viaDio);
           sourceNotifier.value = 'Online • Dio';
           return;
         }
@@ -55,14 +61,22 @@ class ProductRepository {
         final viaHttp =
             await ApiService.instance.fetchProductsWithHttp();
         if (viaHttp.isNotEmpty) {
-          productsNotifier.value = viaHttp;
+          productsNotifier.value = List<Product>.from(viaHttp);
           sourceNotifier.value = 'Online • HTTP';
           return;
         }
       } catch (_) {
         // fallback lokal
       }
-      productsNotifier.value = List.of(local.products);
+      productsNotifier.value = List<Product>.from(local.products);
+      sourceNotifier.value = 'Offline • Lokal';
+    } catch (_) {
+      // Jaring pengaman terakhir: jangan biarkan notifier rusak.
+      try {
+        productsNotifier.value = List<Product>.from(local.products);
+      } catch (_) {
+        // abaikan — biarkan nilai lama yang masih valid
+      }
       sourceNotifier.value = 'Offline • Lokal';
     } finally {
       loadingNotifier.value = false;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/auth_service.dart';
-import 'loginPage.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -48,17 +48,14 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     // Register sukses -> ke Login dengan email sudah terisi otomatis.
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LoginPage(initialEmail: email),
-      ),
-    );
+    // Pakai query parameter agar deep-linkable: /login?email=xxx
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Akun berhasil dibuat. Silakan login.'),
       ),
     );
+    context.go('/login?email=${Uri.encodeComponent(email)}');
   }
 
   @override
@@ -228,12 +225,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
-                        ),
-                      );
+                      context.go('/login');
                     },
                     child: Text(
                       'Login',

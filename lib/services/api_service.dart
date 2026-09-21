@@ -31,13 +31,7 @@ class ApiService {
   /// Ambil produk memakai **dio**.
   Future<List<Product>> fetchProductsWithDio() async {
     final res = await _dio.get('/products');
-    final data = res.data;
-    if (data is List) {
-      return data
-          .map((e) => Product.fromJson(Map<String, dynamic>.from(e as Map)))
-          .toList();
-    }
-    throw const FormatException('Respon dio tidak valid');
+    return _parseToProducts(res.data, 'dio');
   }
 
   /// Ambil produk memakai **http** (package:http).
@@ -48,13 +42,35 @@ class ApiService {
     if (res.statusCode != 200) {
       throw Exception('HTTP ${res.statusCode}');
     }
-    final decoded = jsonDecode(res.body);
-    if (decoded is List) {
-      return decoded
-          .map((e) => Product.fromJson(Map<String, dynamic>.from(e as Map)))
-          .toList();
+    return _parseToProducts(jsonDecode(res.body), 'http');
+  }
+
+  /// Ubah body JSON mentah jadi [List<Product>] secara aman di semua
+  /// platform (termasuk Flutter Web / dart2js).
+  ///
+  /// - Menolak body yang bukan List.
+  /// - Melewati item yang bukan Map / gagal di-parse (bukan crash).
+  /// - Selalu mengembalikan `List<Product>` asli (bukan JSArray mentah).
+  List<Product> _parseToProducts(dynamic data, String source) {
+    if (data is! List) {
+      throw FormatException('Respon $source tidak valid');
     }
-    throw const FormatException('Respon http tidak valid');
+    final items = <Product>[];
+    for (final e in data) {
+      if (e is Map) {
+        try {
+          items.add(
+            Product.fromJson(Map<String, dynamic>.from(e)),
+          );
+        } catch (_) {
+          // Lewati satu item rusak, lanjut ke item berikutnya.
+        }
+      }
+    }
+    if (items.isEmpty) {
+      throw const FormatException('Tidak ada produk valid');
+    }
+    return items;
   }
 
   /// Coba dio dulu, lalu http, terakhir fallback lokal.
@@ -72,7 +88,7 @@ class ApiService {
     } catch (_) {
       // lanjut ke lokal
     }
-    return local.products;
+    return List<Product>.from(local.products);
   }
 
   /// Filter + search murni Dart (dipakai semua halaman).

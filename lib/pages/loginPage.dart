@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/auth_service.dart';
-import 'homePage.dart';
-import 'registerPage.dart';
 
 class LoginPage extends StatefulWidget {
   /// Diisi otomatis setelah register sukses.
@@ -58,12 +57,9 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (context) => const HomePage(),
-      ),
-      (route) => false,
-    );
+    // GoRouter: redirect auth otomatis juga akan membawa ke /home,
+    // tapi panggil go() eksplisit agar transisi instan.
+    if (context.mounted) context.go('/home');
   }
 
   @override
@@ -239,12 +235,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RegisterPage(),
-                        ),
-                      );
+                      context.push('/register');
                     },
                     child: Text(
                       'Sign Up',

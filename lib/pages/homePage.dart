@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../data/products.dart' as local_data;
 import '../models/product.dart';
 import '../services/api_service.dart';
-import '../services/favorites.dart';
 import '../services/product_repository.dart';
 import '../widgets/product_card.dart';
 import './favoritePage.dart';
