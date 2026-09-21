@@ -155,6 +155,20 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/orders',
+      name: 'orders',
+      builder: (BuildContext context, GoRouterState state) {
+        return const OrdersPage();
+      },
+    ),
+    GoRoute(
+      path: '/settings',
+      name: 'settings',
+      builder: (BuildContext context, GoRouterState state) {
+        return const SettingsPage();
+      },
+    ),
+    GoRoute(
       path: '/product/:id',
       name: 'product-detail',
       builder: (BuildContext context, GoRouterState state) {
