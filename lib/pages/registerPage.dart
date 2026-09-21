@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../services/auth_service.dart';
 import 'loginPage.dart';
-
-String registeredName = '';
-String registeredEmail = '';
-String registeredPassword = '';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -18,6 +15,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool obscurePassword = true;
+  bool loading = false;
 
   @override
   void dispose() {
@@ -27,14 +26,38 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  void createAccount() {
-    registeredName = nameController.text;
-    registeredEmail = emailController.text;
-    registeredPassword = passwordController.text;
+  Future<void> createAccount() async {
+    final name = nameController.text;
+    final email = emailController.text.trim();
+    final password = passwordController.text;
 
+    setState(() => loading = true);
+    final error = AuthService.instance.register(
+      name: name,
+      email: email,
+      password: password,
+    );
+    if (!mounted) return;
+    setState(() => loading = false);
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
+      return;
+    }
+
+    // Register sukses -> ke Login dengan email sudah terisi otomatis.
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
+      MaterialPageRoute(
+        builder: (context) => LoginPage(initialEmail: email),
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Akun berhasil dibuat. Silakan login.'),
+      ),
     );
   }
 
@@ -53,11 +76,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   'assets/images/logo.png',
                   width: 245,
                   height: 245,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(
+                      Icons.shopping_bag,
+                      size: 100,
+                      color: Colors.black,
+                    );
+                  },
                 ),
               ),
-
               const SizedBox(height: 35),
-
               Text(
                 'Create Account',
                 style: GoogleFonts.poppins(
@@ -66,16 +94,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   color: Colors.black,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               Text(
                 'Create your Carhartt account',
                 style: GoogleFonts.poppins(fontSize: 14, color: Colors.black),
               ),
-
               const SizedBox(height: 35),
-
               Text(
                 'Name',
                 style: GoogleFonts.poppins(
@@ -83,11 +107,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: nameController,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   hintText: 'Enter your name',
                   prefixIcon: const Icon(Icons.person_outline),
@@ -99,9 +122,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 22),
-
               Text(
                 'Email',
                 style: GoogleFonts.poppins(
@@ -109,12 +130,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   hintText: 'Enter your email',
                   prefixIcon: const Icon(Icons.email_outlined),
@@ -126,9 +146,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 22),
-
               Text(
                 'Password',
                 style: GoogleFonts.poppins(
@@ -136,16 +154,27 @@ class _RegisterPageState extends State<RegisterPage> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: passwordController,
-                obscureText: true,
+                obscureText: obscurePassword,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => createAccount(),
                 decoration: InputDecoration(
-                  hintText: 'Create a password',
+                  hintText: 'Create a password (min. 6 karakter)',
                   prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: const Icon(Icons.visibility_off_outlined),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                    icon: Icon(
+                      obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                    ),
+                  ),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -154,14 +183,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 30),
-
               SizedBox(
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: createAccount,
+                  onPressed: loading ? null : createAccount,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFC72C),
                     foregroundColor: Colors.black,
@@ -170,18 +197,25 @@ class _RegisterPageState extends State<RegisterPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    'Create Account',
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: loading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.black,
+                          ),
+                        )
+                      : Text(
+                          'Create Account',
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
-
               const SizedBox(height: 35),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -194,7 +228,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const LoginPage(),
