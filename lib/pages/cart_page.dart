@@ -11,9 +11,6 @@ import '../providers/cart_provider.dart';
 class CartPage extends ConsumerWidget {
   const CartPage({super.key});
 
-  static const _yellow = Color(0xFFFFC72C);
-  static const _yellowDark = Color(0xFFB8860B);
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<CartItem> cart = ref.watch(cartProvider);
@@ -104,8 +101,6 @@ class CartPage extends ConsumerWidget {
 class _CartTile extends ConsumerWidget {
   final CartItem item;
   const _CartTile({required this.item});
-
-  static const _yellow = Color(0xFFFFC72C);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
