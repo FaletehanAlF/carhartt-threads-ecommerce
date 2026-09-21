@@ -124,15 +124,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: Column(
                 children: [
                   _RowItem(
-                    icon: Icons.receipt_long_outlined,
-                    title: 'Riwayat Pesanan',
-                    subtitle: ordersCount == 0
-                        ? 'Belum ada pesanan'
-                        : '$ordersCount pesanan',
-                    onTap: () => context.push('/orders'),
-                  ),
-                  const Divider(height: 20),
-                  _RowItem(
                     icon: Icons.delete_outline,
                     title: 'Hapus Riwayat Pesanan',
                     iconColor: Colors.red,

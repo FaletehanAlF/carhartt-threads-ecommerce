@@ -10,6 +10,7 @@ import '../services/api_service.dart';
 import '../services/product_repository.dart';
 import '../widgets/product_card.dart';
 import './favoritePage.dart';
+import './orders_page.dart';
 import './productsPage.dart';
 import './profilePage.dart';
 
@@ -42,34 +43,48 @@ class _HomePageState extends State<HomePage> {
           HomeContent(onViewAll: goToProducts),
           const ProductsPage(),
           const FavoritePage(),
+          const OrdersPage(),
           const ProfilePage(),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
+      bottomNavigationBar: NavigationBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        selectedIndex: currentIndex,
+        onDestinationSelected: (index) {
           setState(() {
             currentIndex = index;
           });
         },
-        items: const [
-          BottomNavigationBarItem(
+        indicatorColor: const Color(0xFFFFC72C),
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        destinations: const [
+          NavigationDestination(
             icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.grid_view_outlined),
+            selectedIcon: Icon(Icons.grid_view_rounded),
             label: 'Products',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outlined),
-            label: 'Favorites',
+          NavigationDestination(
+            icon: Icon(Icons.favorite_outline),
+            selectedIcon: Icon(Icons.favorite),
+            label: 'Fav',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long_rounded),
+            label: 'Orders',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],
