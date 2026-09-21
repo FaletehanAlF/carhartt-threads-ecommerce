@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F8),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -113,11 +113,13 @@ class _LoginPageState extends State<LoginPage> {
                       Center(
                         child: Image.asset(
                           'assets/images/carhatt.png',
-                          height: 160,
+                          width: 250,
+                          height: 250,
                           fit: BoxFit.contain,
                           errorBuilder: (_, e, s) => Image.asset(
                             'assets/images/logo.png',
-                            height: 160,
+                            width: 250,
+                            height: 250,
                             fit: BoxFit.contain,
                             errorBuilder: (_, e, s) => Row(
                               mainAxisSize: MainAxisSize.min,
@@ -135,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Text('Welcome back', style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.black, height: 1.15)),
                       const SizedBox(height: 8),
                       Text('Sign in to continue shopping', style: GoogleFonts.inter(fontSize: 14.5, color: Colors.grey.shade600, height: 1.4)),
@@ -212,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
                           Text("Don't have an account? ", style: GoogleFonts.inter(fontSize: 14, color: Colors.grey.shade700)),
                           GestureDetector(
                             onTap: () => context.push('/register'),
-                            child: Text('Create one', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: _primaryDark)),
+                            child: Text('Sign up', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: _primaryDark)),
                           ),
                         ],
                       ),
