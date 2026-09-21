@@ -37,11 +37,11 @@ class CarharttApp extends StatelessWidget {
             color: Colors.black,
           ),
         ),
-        cardTheme: CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 2,
-          margin: const EdgeInsets.all(8),
+          margin: EdgeInsets.all(8),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
