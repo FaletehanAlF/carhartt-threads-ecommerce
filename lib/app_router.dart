@@ -162,6 +162,22 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return const OrdersPage();
       },
+      routes: <RouteBase>[
+        GoRoute(
+          path: ':orderId',
+          name: 'order-detail-nested',
+          builder: (BuildContext context, GoRouterState state) {
+            return _buildOrderDetail(state);
+          },
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/order/:id',
+      name: 'order-detail',
+      builder: (BuildContext context, GoRouterState state) {
+        return _buildOrderDetail(state);
+      },
     ),
     GoRoute(
       path: '/settings',
