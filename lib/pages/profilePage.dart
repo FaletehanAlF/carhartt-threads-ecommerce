@@ -120,16 +120,19 @@ class ProfilePage extends StatelessWidget {
                   profileMenu(
                     Icons.shopping_bag_outlined,
                     'My Orders',
+                    onTap: () => context.push('/orders'),
                   ),
                   const Divider(height: 25),
                   profileMenu(
                     Icons.favorite_border,
                     'My Favorites',
+                    onTap: () => context.push('/favorites'),
                   ),
                   const Divider(height: 25),
                   profileMenu(
                     Icons.settings_outlined,
                     'Settings',
+                    onTap: () => context.push('/settings'),
                   ),
                 ],
               ),
@@ -219,9 +222,10 @@ class ProfilePage extends StatelessWidget {
 
   Widget profileMenu(
     IconData icon,
-    String title,
-  ) {
-    return Row(
+    String title, {
+    VoidCallback? onTap,
+  }) {
+    final content = Row(
       children: [
         Icon(
           icon,
@@ -243,6 +247,12 @@ class ProfilePage extends StatelessWidget {
           color: Colors.grey,
         ),
       ],
+    );
+    if (onTap == null) return content;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: content,
     );
   }
 }
