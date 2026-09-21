@@ -146,7 +146,7 @@ class _CartTile extends ConsumerWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: Image.network(
-              p.image,
+              product.image,
               fit: BoxFit.cover,
               errorBuilder: (_, e, s) => Container(
                 color: Colors.grey.shade200,
@@ -168,14 +168,14 @@ class _CartTile extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            p.name,
+                            product.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w600, color: Colors.black, height: 1.1),
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Size ${item.size} • ${p.category}',
+                            'Size ${item.size} • ${product.category}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey.shade500, fontWeight: FontWeight.w400),
@@ -185,10 +185,7 @@ class _CartTile extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     InkWell(
-                      onTap: () {
-                        ref.read(cartProvider.notifier).removeItem(item);
-                        Fluttertoast.showToast(msg: '${p.name} dihapus dari cart', toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM);
-                      },
+                      onTap: () => _handleRemoveItem(ref),
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
                         padding: const EdgeInsets.all(4),
@@ -202,7 +199,7 @@ class _CartTile extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      p.priceText,
+                      product.priceText,
                       style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black),
                     ),
                     const Spacer(),
@@ -211,7 +208,7 @@ class _CartTile extends ConsumerWidget {
                         _QtyButton(
                           icon: Icons.remove,
                           isActive: false,
-                          onTap: () => ref.read(cartProvider.notifier).decreaseQuantity(p.id, size: item.size),
+                          onTap: () => _handleDecreaseQuantity(ref),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -220,7 +217,7 @@ class _CartTile extends ConsumerWidget {
                         _QtyButton(
                           icon: Icons.add,
                           isActive: true,
-                          onTap: () => ref.read(cartProvider.notifier).increaseQuantity(p.id, size: item.size),
+                          onTap: () => _handleIncreaseQuantity(ref),
                         ),
                       ],
                     ),
