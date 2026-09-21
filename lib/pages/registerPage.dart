@@ -106,9 +106,9 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F8),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF9F9F8),
+        backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
@@ -136,11 +136,13 @@ class _RegisterPageState extends State<RegisterPage> {
                       Center(
                         child: Image.asset(
                           'assets/images/carhatt.png',
-                          height: 160,
+                          width: 280,
+                          height: 280,
                           fit: BoxFit.contain,
                           errorBuilder: (_, e, s) => Image.asset(
                             'assets/images/logo.png',
-                            height: 160,
+                            width: 280,
+                            height: 280,
                             fit: BoxFit.contain,
                             errorBuilder: (_, e, s) => Row(
                               mainAxisSize: MainAxisSize.min,
