@@ -324,6 +324,14 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
                           height: 54,
                           child: ElevatedButton(
                             onPressed: () {
+                              // Ubah state Cart via ref.read (sesuai dokumentasi).
+                              ref
+                                  .read(cartProvider.notifier)
+                                  .addProduct(
+                                    p,
+                                    quantity: qty,
+                                    size: selectedSize,
+                                  );
                               Fluttertoast.showToast(
                                 msg:
                                     '$qty x ${p.name} (Size $selectedSize) ditambahkan ke tas',
