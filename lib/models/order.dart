@@ -1,11 +1,16 @@
 import 'cart_item.dart';
 import 'product.dart';
 
-/// Status awal pesanan (tahap pertama, lokal saja).
-///
-/// Nanti tinggal diganti dari response backend / payment gateway
-/// (mis. menunggu pembayaran, dibayar, dikirim, selesai, dibatalkan).
-const String orderStatusProcessing = 'Diproses';
+/// Status pesanan setelah checkout selesai.
+/// Sesuai permintaan: hanya "Berhasil" (tidak lagi "Diproses").
+const String orderStatusSuccess = 'Berhasil';
+
+/// Status lama dipertahankan untuk kompatibilitas, tapi tidak dipakai lagi.
+/// Semua pesanan baru otomatis berstatus [orderStatusSuccess].
+const String orderStatusProcessing = orderStatusSuccess;
+
+/// Daftar metode pembayaran yang didukung di Checkout.
+const List<String> availablePaymentMethods = ['DANA', 'GOPAY', 'OVO', 'CASH'];
 
 /// Satu pesanan — snapshot dari Cart saat user menekan Bayar Sekarang.
 ///
@@ -24,6 +29,7 @@ class Order {
   final int total;
   final DateTime createdAt;
   final String status;
+  final String paymentMethod;
 
   Order({
     required this.id,
@@ -37,7 +43,8 @@ class Order {
     required this.shipping,
     required this.total,
     required this.createdAt,
-    this.status = orderStatusProcessing,
+    this.status = orderStatusSuccess,
+    this.paymentMethod = 'CASH',
   }) : items = List<CartItem>.unmodifiable(
           items.map((e) => e.copyWith()),
         );
@@ -54,6 +61,9 @@ class Order {
     return '${two(d.day)}/${two(d.month)}/${d.year} '
         '${two(d.hour)}:${two(d.minute)}';
   }
+
+  /// Alamat lengkap untuk ditampilkan di detail pesanan.
+  String get fullAddressText => '$address, $city $zip';
 
   /// Buat id unik lokal: ORD-<6 digit terakhir epoch>.
   static String newId() {

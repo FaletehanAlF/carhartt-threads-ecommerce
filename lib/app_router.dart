@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'models/order.dart';
 import 'models/product.dart';
 import 'pages/cart_page.dart';
 import 'pages/checkout_page.dart';
 import 'pages/favoritePage.dart';
 import 'pages/homePage.dart';
 import 'pages/loginPage.dart';
+import 'pages/order_detail_page.dart';
 import 'pages/orders_page.dart';
 import 'pages/product_detail_page.dart';
 import 'pages/productsPage.dart';

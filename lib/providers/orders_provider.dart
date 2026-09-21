@@ -24,8 +24,9 @@ class OrdersNotifier extends Notifier<List<Order>> {
   @override
   List<Order> build() => const [];
 
-  /// Buat pesanan baru dari snapshot [items] Cart + alamat.
+  /// Buat pesanan baru dari snapshot [items] Cart + alamat + metode pembayaran.
   /// Return [Order] yang dibuat (untuk snackbar/navigasi).
+  /// Status selalu [orderStatusSuccess] ("Berhasil") sesuai permintaan.
   Order placeOrder({
     required List<CartItem> items,
     required String receiverName,
@@ -36,7 +37,11 @@ class OrdersNotifier extends Notifier<List<Order>> {
     required int subtotal,
     required int shipping,
     required int total,
+    required String paymentMethod,
+    String status = orderStatusSuccess,
   }) {
+    final String normalizedPayment = _normalizePaymentMethod(paymentMethod);
+
     final order = Order(
       id: Order.newId(),
       items: items,
@@ -49,10 +54,27 @@ class OrdersNotifier extends Notifier<List<Order>> {
       shipping: shipping,
       total: total,
       createdAt: DateTime.now(),
+      status: status,
+      paymentMethod: normalizedPayment,
     );
     // Pesanan terbaru di paling atas.
     state = [order, ...state];
     return order;
+  }
+
+  String _normalizePaymentMethod(String input) {
+    final String upper = input.trim().toUpperCase();
+    if (availablePaymentMethods.contains(upper)) return upper;
+    return 'CASH';
+  }
+
+  /// Cari pesanan berdasarkan id (untuk detail page).
+  Order? findById(String orderId) {
+    try {
+      return state.firstWhere((order) => order.id == orderId);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Hapus seluruh riwayat (dipakai dari Settings).
