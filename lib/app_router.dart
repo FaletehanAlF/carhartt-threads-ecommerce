@@ -28,6 +28,8 @@ import 'services/product_repository.dart';
 /// '/profile'       -> [ProfilePage]
 /// '/cart'          -> [CartPage] (Riverpod)
 /// '/checkout'      -> [CheckoutPage] (data dari Cart, Riverpod)
+/// '/orders'        -> [OrdersPage] (riwayat pesanan, Riverpod)
+/// '/settings'      -> [SettingsPage]
 /// '/product/:id'   -> [ProductDetailPage] (via extra Product atau lookup by id)
 ///
 /// Contoh dari pub.dev diperbaiki:
