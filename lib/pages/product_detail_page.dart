@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/product.dart';
@@ -29,7 +30,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/home');
+            }
+          },
           icon: const Icon(Icons.arrow_back, color: Colors.black),
         ),
         title: Text(

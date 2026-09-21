@@ -141,13 +141,9 @@ class ProfilePage extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () {
                   AuthService.instance.logout();
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginPage(),
-                    ),
-                    (route) => false,
-                  );
+                  // Redirect auth otomatis ke /login via refreshListenable,
+                  // panggil go() eksplisit agar instan.
+                  context.go('/login');
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.black,

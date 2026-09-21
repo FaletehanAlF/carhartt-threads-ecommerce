@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
+
 /// Session auth sederhana (in-memory).
 ///
 /// Menyimpan akun yang didaftarkan lewat [AuthService.register]
 /// dan sesi login aktif. Variabel global [registeredName],
 /// [registeredEmail], [registeredPassword] dipertahankan agar
 /// file lama yang mengimpornya tetap jalan.
-import 'package:flutter/foundation.dart';
 
 String registeredName = '';
 String registeredEmail = '';
