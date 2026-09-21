@@ -34,8 +34,11 @@ class CartPage extends ConsumerWidget {
           child: Center(
             child: InkWell(
               onTap: () {
-                if (context.canPop()) context.pop();
-                else context.go('/home');
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/home');
+                }
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
