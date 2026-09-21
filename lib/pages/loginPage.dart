@@ -1,35 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../services/auth_service.dart';
 import 'homePage.dart';
 import 'registerPage.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  /// Diisi otomatis setelah register sukses.
+  final String? initialEmail;
+
+  const LoginPage({super.key, this.initialEmail});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
+  late final TextEditingController emailController;
   final passwordController = TextEditingController();
+  bool obscurePassword = true;
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Email terisi sesuai yang dimasukkan saat register.
+    emailController = TextEditingController(
+      text: widget.initialEmail ?? registeredEmail,
+    );
+  }
 
   void login() {
-    if (emailController.text == registeredEmail &&
-    passwordController.text == registeredPassword) {
-  Navigator.of(context).pushAndRemoveUntil(
-    MaterialPageRoute(
-      builder: (context) => const HomePage(),
-    ),
-    (route) => false,
-  );
-} else {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Email atau password tidak sesuai.'),
-    ),
-  );
-}
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email dan password wajib diisi.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() => loading = true);
+    final error = AuthService.instance.login(
+      email: email,
+      password: password,
+    );
+    if (!mounted) return;
+    setState(() => loading = false);
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
+      return;
+    }
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => const HomePage(),
+      ),
+      (route) => false,
+    );
   }
 
   @override
@@ -57,11 +91,16 @@ class _LoginPageState extends State<LoginPage> {
                   'assets/images/logo.png',
                   width: 245,
                   height: 245,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(
+                      Icons.shopping_bag,
+                      size: 100,
+                      color: Colors.black,
+                    );
+                  },
                 ),
               ),
-
               const SizedBox(height: 35),
-
               Text(
                 'Welcome Back',
                 style: GoogleFonts.poppins(
@@ -70,9 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                   color: Colors.black,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               Text(
                 'Sign in to your Carhartt account',
                 style: GoogleFonts.poppins(
@@ -80,9 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                   color: Colors.grey.shade600,
                 ),
               ),
-
               const SizedBox(height: 35),
-
               Text(
                 'Email',
                 style: GoogleFonts.poppins(
@@ -90,12 +125,11 @@ class _LoginPageState extends State<LoginPage> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   hintText: 'Enter your email',
                   prefixIcon: const Icon(
@@ -109,9 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 22),
-
               Text(
                 'Password',
                 style: GoogleFonts.poppins(
@@ -119,19 +151,28 @@ class _LoginPageState extends State<LoginPage> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: passwordController,
-                obscureText: true,
+                obscureText: obscurePassword,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => login(),
                 decoration: InputDecoration(
                   hintText: 'Enter your password',
                   prefixIcon: const Icon(
                     Icons.lock_outline,
                   ),
-                  suffixIcon: const Icon(
-                    Icons.visibility_off_outlined,
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                    icon: Icon(
+                      obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                    ),
                   ),
                   filled: true,
                   fillColor: Colors.white,
@@ -141,9 +182,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
@@ -155,14 +194,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 30),
-
               SizedBox(
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: login,
+                  onPressed: loading ? null : login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFC72C),
                     foregroundColor: Colors.black,
@@ -171,18 +208,25 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    'Login',
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: loading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.black,
+                          ),
+                        )
+                      : Text(
+                          'Login',
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
-
               const SizedBox(height: 35),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -193,7 +237,6 @@ class _LoginPageState extends State<LoginPage> {
                       color: Colors.grey.shade600,
                     ),
                   ),
-
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
