@@ -113,13 +113,13 @@ class _LoginPageState extends State<LoginPage> {
                       Center(
                         child: Image.asset(
                           'assets/images/carhatt.png',
-                          width: 250,
-                          height: 250,
+                          width: 280,
+                          height: 280,
                           fit: BoxFit.contain,
                           errorBuilder: (_, e, s) => Image.asset(
                             'assets/images/logo.png',
-                            width: 250,
-                            height: 250,
+                            width: 280,
+                            height: 280,
                             fit: BoxFit.contain,
                             errorBuilder: (_, e, s) => Row(
                               mainAxisSize: MainAxisSize.min,
