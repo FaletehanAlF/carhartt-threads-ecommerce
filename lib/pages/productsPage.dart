@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../data/products.dart' show productCategories;
@@ -6,7 +7,6 @@ import '../models/product.dart';
 import '../services/api_service.dart';
 import '../services/product_repository.dart';
 import '../widgets/product_card.dart';
-import 'product_detail_page.dart';
 
 class ProductsPage extends StatefulWidget {
   const ProductsPage({super.key});
@@ -40,12 +40,7 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   void openDetail(Product product) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProductDetailPage(product: product),
-      ),
-    );
+    context.push('/product/${product.id}', extra: product);
   }
 
   @override

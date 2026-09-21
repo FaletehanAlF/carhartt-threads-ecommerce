@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/product.dart';
 import '../services/favorites.dart';
 import '../services/product_repository.dart';
 import '../widgets/product_card.dart';
-import 'product_detail_page.dart';
 
 class FavoritePage extends StatelessWidget {
   const FavoritePage({super.key});
 
   void openDetail(BuildContext context, Product product) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProductDetailPage(product: product),
-      ),
-    );
+    context.push('/product/${product.id}', extra: product);
   }
 
   @override

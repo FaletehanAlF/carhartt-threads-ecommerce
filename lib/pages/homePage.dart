@@ -97,12 +97,9 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   void openDetail(Product product) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProductDetailPage(product: product),
-      ),
-    );
+    // Kirim object via extra + id di path agar deep-linkable
+    // dan tetap aman saat list belum refresh.
+    context.push('/product/${product.id}', extra: product);
   }
 
   @override
