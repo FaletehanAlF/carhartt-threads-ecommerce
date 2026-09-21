@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'models/product.dart';
+import 'pages/cart_page.dart';
 import 'pages/favoritePage.dart';
 import 'pages/homePage.dart';
 import 'pages/loginPage.dart';
@@ -22,6 +23,7 @@ import 'services/product_repository.dart';
 /// '/products'      -> [ProductsPage] (standalone, deep-linkable)
 /// '/favorites'     -> [FavoritePage]
 /// '/profile'       -> [ProfilePage]
+/// '/cart'          -> [CartPage] (Riverpod)
 /// '/product/:id'   -> [ProductDetailPage] (via extra Product atau lookup by id)
 ///
 /// Contoh dari pub.dev diperbaiki:
@@ -130,6 +132,13 @@ final GoRouter appRouter = GoRouter(
       name: 'profile',
       builder: (BuildContext context, GoRouterState state) {
         return const ProfilePage();
+      },
+    ),
+    GoRoute(
+      path: '/cart',
+      name: 'cart',
+      builder: (BuildContext context, GoRouterState state) {
+        return const CartPage();
       },
     ),
     GoRoute(
