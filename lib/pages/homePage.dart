@@ -48,47 +48,53 @@ class _HomePageState extends State<HomePage> {
           const ProfilePage(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-        selectedIndex: currentIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            currentIndex = index;
-          });
+      bottomNavigationBar: ValueListenableBuilder<Set<int>>(
+        valueListenable: favoriteProductIds,
+        builder: (context, favoriteIds, _) {
+          final bool hasFavoriteBadge = favoriteIds.isNotEmpty;
+          return NavigationBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+            selectedIndex: currentIndex,
+            onDestinationSelected: (index) {
+              setState(() {
+                currentIndex = index;
+              });
+            },
+            indicatorColor: const Color(0xFFFFC72C),
+            indicatorShape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            destinations: [
+              const NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home_rounded),
+                label: 'Home',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.grid_view_outlined),
+                selectedIcon: Icon(Icons.grid_view_rounded),
+                label: 'Products',
+              ),
+              NavigationDestination(
+                icon: _FavoriteNavIcon(hasBadge: hasFavoriteBadge, isSelected: false),
+                selectedIcon: _FavoriteNavIcon(hasBadge: hasFavoriteBadge, isSelected: true),
+                label: 'Fav',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.receipt_long_outlined),
+                selectedIcon: Icon(Icons.receipt_long_rounded),
+                label: 'Orders',
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.person_outline),
+                selectedIcon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
+          );
         },
-        indicatorColor: const Color(0xFFFFC72C),
-        indicatorShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.grid_view_outlined),
-            selectedIcon: Icon(Icons.grid_view_rounded),
-            label: 'Products',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.favorite_outline),
-            selectedIcon: Icon(Icons.favorite),
-            label: 'Fav',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long_rounded),
-            label: 'Orders',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
       ),
     );
   }
