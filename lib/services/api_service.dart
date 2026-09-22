@@ -6,88 +6,157 @@ import 'package:http/http.dart' as http;
 import '../data/products.dart' as local;
 import '../models/product.dart';
 
-/// Layer jaringan yang memakai **dio** sebagai client utama
-/// dan **http** sebagai fallback.
+/// Layer jaringan untuk Carhartt Shop.
 ///
-/// Endpoint demo: FakeStore API. Kalau offline / gagal,
-/// otomatis fallback ke katalog lokal ([local.products])
-/// supaya aplikasi tetap jalan.
+/// Prioritas:
+/// 1. Carhartt API lokal (http://localhost:3000 / 10.0.2.2:3000) — 20 produk demo
+/// 2. FakeStore API (fallback lama)
+/// 3. Katalog lokal (offline)
+///
+/// Dio sebagai client utama, http sebagai fallback.
 class ApiService {
   ApiService._();
   static final ApiService instance = ApiService._();
 
-  static const String _baseUrl = 'https://fakestoreapi.com';
-  static const Duration _timeout = Duration(seconds: 12);
+  // Carhartt API lokal - coba beberapa host untuk Android emulator & Web
+  static const List<String> _carharttHosts = [
+    'http://localhost:3000',
+    'http://10.0.2.2:3000',
+    'http://127.0.0.1:3000',
+  ];
+
+  static const String _fakeStoreBase = 'https://fakestoreapi.com';
+  static const Duration _timeout = Duration(seconds: 10);
 
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: _baseUrl,
       connectTimeout: _timeout,
       receiveTimeout: _timeout,
       headers: {'Accept': 'application/json'},
     ),
   );
 
-  /// Ambil produk memakai **dio**.
+  // ── Carhartt API ──
+
+  /// Ambil semua produk dari Carhartt API (GET /api/products)
+  /// Mendukung filter ?category=T-Shirt (opsional, tapi client juga filter lokal)
+  Future<List<Product>> fetchProductsFromCarhartt({String? category}) async {
+    for (final host in _carharttHosts) {
+      try {
+        final url = category == null || category == 'All'
+            ? '$host/api/products'
+            : '$host/api/products?category=${Uri.encodeComponent(category)}';
+        final res = await _dio.get(url);
+        final parsed = _parseCarharttResponse(res.data, host);
+        if (parsed.isNotEmpty) return parsed;
+      } catch (_) {
+        continue;
+      }
+    }
+    throw Exception('Carhartt API tidak terjangkau');
+  }
+
+  Future<List<Product>> fetchProductsFromCarharttWithHttp({String? category}) async {
+    for (final host in _carharttHosts) {
+      try {
+        final url = category == null || category == 'All'
+            ? '$host/api/products'
+            : '$host/api/products?category=${Uri.encodeComponent(category)}';
+        final res = await http.get(Uri.parse(url)).timeout(_timeout);
+        if (res.statusCode != 200) continue;
+        final decoded = jsonDecode(res.body);
+        final parsed = _parseCarharttResponse(decoded, host);
+        if (parsed.isNotEmpty) return parsed;
+      } catch (_) {
+        continue;
+      }
+    }
+    throw Exception('Carhartt API http gagal');
+  }
+
+  /// Ambil 1 produk by id dari Carhartt API
+  Future<Product?> fetchProductById(int id) async {
+    for (final host in _carharttHosts) {
+      try {
+        final res = await _dio.get('$host/api/products/$id');
+        final data = res.data;
+        if (data is Map && data['success'] == true && data['data'] is Map) {
+          return Product.fromJson(Map<String, dynamic>.from(data['data'] as Map));
+        }
+      } catch (_) {
+        continue;
+      }
+    }
+    return null;
+  }
+
+  List<Product> _parseCarharttResponse(dynamic body, String source) {
+    // Format: {success:true, data:[...]} atau {success:true, data:{...}}
+    if (body is Map && body['data'] is List) {
+      final list = body['data'] as List;
+      return _parseListToProducts(list, source);
+    }
+    if (body is List) {
+      // Fallback kalau response langsung List (FakeStore)
+      return _parseListToProducts(body, source);
+    }
+    throw FormatException('Format $source tidak valid');
+  }
+
+  // ── FakeStore fallback (tetap dipertahankan) ──
+
   Future<List<Product>> fetchProductsWithDio() async {
-    final res = await _dio.get('/products');
+    // Coba Carhartt dulu
+    try {
+      final carhartt = await fetchProductsFromCarhartt();
+      if (carhartt.isNotEmpty) return carhartt;
+    } catch (_) {}
+    // Fallback FakeStore
+    final res = await _dio.get('$_fakeStoreBase/products');
     return _parseToProducts(res.data, 'dio');
   }
 
-  /// Ambil produk memakai **http** (package:http).
   Future<List<Product>> fetchProductsWithHttp() async {
-    final res = await http
-        .get(Uri.parse('$_baseUrl/products'))
-        .timeout(_timeout);
-    if (res.statusCode != 200) {
-      throw Exception('HTTP ${res.statusCode}');
-    }
+    try {
+      final carhartt = await fetchProductsFromCarharttWithHttp();
+      if (carhartt.isNotEmpty) return carhartt;
+    } catch (_) {}
+    final res = await http.get(Uri.parse('$_fakeStoreBase/products')).timeout(_timeout);
+    if (res.statusCode != 200) throw Exception('HTTP ${res.statusCode}');
     return _parseToProducts(jsonDecode(res.body), 'http');
   }
 
-  /// Ubah body JSON mentah jadi [List<Product>] secara aman di semua
-  /// platform (termasuk Flutter Web / dart2js).
-  ///
-  /// - Menolak body yang bukan List.
-  /// - Melewati item yang bukan Map / gagal di-parse (bukan crash).
-  /// - Selalu mengembalikan `List<Product>` asli (bukan JSArray mentah).
   List<Product> _parseToProducts(dynamic data, String source) {
-    if (data is! List) {
-      throw FormatException('Respon $source tidak valid');
+    if (data is Map && data['data'] is List) {
+      return _parseListToProducts(data['data'] as List, source);
     }
+    if (data is! List) throw FormatException('Respon $source tidak valid');
+    return _parseListToProducts(data, source);
+  }
+
+  List<Product> _parseListToProducts(List data, String source) {
     final items = <Product>[];
     for (final e in data) {
       if (e is Map) {
         try {
-          items.add(
-            Product.fromJson(Map<String, dynamic>.from(e)),
-          );
-        } catch (_) {
-          // Lewati satu item rusak, lanjut ke item berikutnya.
-        }
+          items.add(Product.fromJson(Map<String, dynamic>.from(e)));
+        } catch (_) {}
       }
     }
-    if (items.isEmpty) {
-      throw const FormatException('Tidak ada produk valid');
-    }
+    if (items.isEmpty) throw const FormatException('Tidak ada produk valid');
     return items;
   }
 
   /// Coba dio dulu, lalu http, terakhir fallback lokal.
-  /// Tidak pernah throw — selalu mengembalikan list.
   Future<List<Product>> fetchProducts() async {
     try {
       final remote = await fetchProductsWithDio();
       if (remote.isNotEmpty) return remote;
-    } catch (_) {
-      // lanjut ke http
-    }
+    } catch (_) {}
     try {
       final remote = await fetchProductsWithHttp();
       if (remote.isNotEmpty) return remote;
-    } catch (_) {
-      // lanjut ke lokal
-    }
+    } catch (_) {}
     return List<Product>.from(local.products);
   }
 
@@ -99,8 +168,7 @@ class ApiService {
   }) {
     final q = query.trim().toLowerCase();
     return source.where((p) {
-      final matchCategory =
-          category == 'All' || p.category == category;
+      final matchCategory = category == 'All' || p.category == category;
       final matchQuery = q.isEmpty ||
           p.name.toLowerCase().contains(q) ||
           p.category.toLowerCase().contains(q) ||

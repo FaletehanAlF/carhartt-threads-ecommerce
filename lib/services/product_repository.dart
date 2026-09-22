@@ -35,7 +35,7 @@ class ProductRepository {
     }
   }
 
-  /// Muat dari jaringan (dio dulu, lalu http, lalu lokal).
+  /// Muat dari jaringan (Carhartt API → Dio → HTTP → lokal).
   /// Dipanggil sekali saat ProductsPage dibuka + saat user refresh.
   ///
   /// Dijamin tidak pernah mengisi notifier dengan tipe yang salah:
@@ -45,38 +45,45 @@ class ProductRepository {
     if (loadingNotifier.value) return;
     loadingNotifier.value = true;
     try {
-      // Coba Dio langsung agar terlihat pemakaian kedua package.
+      // 1. Coba Carhartt API dulu (Dio)
       try {
-        final viaDio =
-            await ApiService.instance.fetchProductsWithDio();
+        final viaCarhartt = await ApiService.instance.fetchProductsFromCarhartt();
+        if (viaCarhartt.isNotEmpty) {
+          productsNotifier.value = List<Product>.from(viaCarhartt);
+          sourceNotifier.value = 'Online • Carhartt API';
+          return;
+        }
+      } catch (_) {}
+
+      // 2. Coba Dio (akan coba Carhartt + FakeStore di dalamnya)
+      try {
+        final viaDio = await ApiService.instance.fetchProductsWithDio();
         if (viaDio.isNotEmpty) {
+          // Bedakan label jika 20 produk Carhartt
+          final isCarhartt = viaDio.length == 20 && viaDio.every((p) => p.sizes.isNotEmpty && p.rating >= 4.0);
           productsNotifier.value = List<Product>.from(viaDio);
-          sourceNotifier.value = 'Online • Dio';
+          sourceNotifier.value = isCarhartt ? 'Online • Carhartt API' : 'Online • Dio';
           return;
         }
-      } catch (_) {
-        // fallback ke http
-      }
+      } catch (_) {}
+
+      // 3. Coba HTTP
       try {
-        final viaHttp =
-            await ApiService.instance.fetchProductsWithHttp();
+        final viaHttp = await ApiService.instance.fetchProductsWithHttp();
         if (viaHttp.isNotEmpty) {
+          final isCarhartt = viaHttp.length == 20;
           productsNotifier.value = List<Product>.from(viaHttp);
-          sourceNotifier.value = 'Online • HTTP';
+          sourceNotifier.value = isCarhartt ? 'Online • Carhartt API' : 'Online • HTTP';
           return;
         }
-      } catch (_) {
-        // fallback lokal
-      }
+      } catch (_) {}
+
       productsNotifier.value = List<Product>.from(local.products);
       sourceNotifier.value = 'Offline • Lokal';
     } catch (_) {
-      // Jaring pengaman terakhir: jangan biarkan notifier rusak.
       try {
         productsNotifier.value = List<Product>.from(local.products);
-      } catch (_) {
-        // abaikan — biarkan nilai lama yang masih valid
-      }
+      } catch (_) {}
       sourceNotifier.value = 'Offline • Lokal';
     } finally {
       loadingNotifier.value = false;

@@ -5,6 +5,8 @@ class Product {
   final int price; // dalam Rupiah
   final String image; // network URL
   final String description;
+  final double rating; // 1.0 - 5.0
+  final List<String> sizes; // ["S","M","L","XL"]
 
   const Product({
     required this.id,
@@ -13,6 +15,8 @@ class Product {
     required this.price,
     required this.image,
     required this.description,
+    this.rating = 4.8,
+    this.sizes = const ["S", "M", "L", "XL"],
   });
 
   /// Format: 599000 -> "Rp 599.000"
@@ -38,8 +42,7 @@ class Product {
   }
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    // Mendukung FakeStore API (https://fakestoreapi.com/products)
-    // dan format lokal.
+    // Mendukung API Carhartt Shop (/api/products) + FakeStore + format lokal.
     final id = (json['id'] is int)
         ? json['id'] as int
         : int.tryParse(json['id']?.toString() ?? '0') ?? 0;
@@ -49,6 +52,22 @@ class Product {
     final image = json['image']?.toString() ?? '';
     final description = json['description']?.toString() ??
         '$title — original Carhartt workwear. Tahan lama untuk kerja harian.';
+
+    // Rating: 1.0 - 5.0
+    double ratingValue = 4.8;
+    if (json['rating'] is num) {
+      ratingValue = (json['rating'] as num).toDouble().clamp(1.0, 5.0);
+    } else if (json['rating'] != null) {
+      ratingValue = double.tryParse(json['rating'].toString())?.clamp(1.0, 5.0) ?? 4.8;
+    }
+
+    // Sizes: ["S","M","L","XL"]
+    List<String> sizesValue = const ["S", "M", "L", "XL"];
+    if (json['sizes'] is List) {
+      final parsed = (json['sizes'] as List).map((e) => e.toString().toUpperCase()).where((e) => e.isNotEmpty).toList();
+      if (parsed.isNotEmpty) sizesValue = parsed;
+    }
+
     int priceValue = 0;
     final rawPrice = json['price'];
     if (rawPrice is num) {
@@ -71,6 +90,8 @@ class Product {
       price: priceValue,
       image: image,
       description: description,
+      rating: ratingValue,
+      sizes: sizesValue,
     );
   }
 
@@ -81,6 +102,8 @@ class Product {
         'price': price,
         'image': image,
         'description': description,
+        'rating': rating,
+        'sizes': sizes,
       };
 
   static String _normalizeCategory(String raw) {
