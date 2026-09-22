@@ -394,3 +394,34 @@ class _HomeContentState extends State<HomeContent> {
     );
   }
 }
+
+class _FavoriteNavIcon extends StatelessWidget {
+  final bool hasBadge;
+  final bool isSelected;
+
+  const _FavoriteNavIcon({required this.hasBadge, required this.isSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Icon(isSelected ? Icons.favorite : Icons.favorite_outline, size: 24),
+        if (hasBadge)
+          Positioned(
+            right: -3,
+            top: -1,
+            child: Container(
+              width: 9,
+              height: 9,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFC72C),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.4),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
