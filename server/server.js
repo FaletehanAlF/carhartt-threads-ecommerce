@@ -67,9 +67,10 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route tidak ditemukan' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Carhartt Shop API running at http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Carhartt Shop API running at http://localhost:${PORT} and http://0.0.0.0:${PORT}`);
   console.log(`GET http://localhost:${PORT}/api/products`);
   console.log(`GET http://localhost:${PORT}/api/products/1`);
   console.log(`GET http://localhost:${PORT}/api/products?category=T-Shirt`);
+  console.log('Listening on 0.0.0.0 for Android emulator (10.0.2.2) and physical device');
 });
