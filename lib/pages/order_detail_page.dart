@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../models/cart_item.dart';
 import '../models/order.dart';
 import '../models/product.dart';
 import '../providers/orders_provider.dart';
@@ -290,7 +291,7 @@ class OrderDetailPage extends ConsumerWidget {
 }
 
 class _OrderProductTile extends StatelessWidget {
-  final dynamic item;
+  final CartItem item;
 
   const _OrderProductTile({required this.item});
 
