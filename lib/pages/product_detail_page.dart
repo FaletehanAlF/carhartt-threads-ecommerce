@@ -281,14 +281,25 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            product.category.toUpperCase(),
-            style: GoogleFonts.poppins(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade500,
-              letterSpacing: 0.9,
-            ),
+          Row(
+            children: [
+              Text(
+                product.category.toUpperCase(),
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade500,
+                  letterSpacing: 0.9,
+                ),
+              ),
+              const Spacer(),
+              const Icon(Icons.star, size: 14, color: Color(0xFFB8860B)),
+              const SizedBox(width: 4),
+              Text(
+                product.rating.toStringAsFixed(1),
+                style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF111111)),
+              ),
+            ],
           ),
           const SizedBox(height: 6),
           Text(
@@ -312,7 +323,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
           const SizedBox(height: 20),
           _buildDescriptionSection(description: product.description),
           const SizedBox(height: 24),
-          _buildSizeSelector(),
+          _buildSizeSelector(sizes: product.sizes),
           const SizedBox(height: 24),
           _buildQuantitySelector(),
           const SizedBox(height: 8),
@@ -339,14 +350,20 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
     );
   }
 
-  Widget _buildSizeSelector() {
+  Widget _buildSizeSelector({List<String>? sizes}) {
+    final List<String> displaySizes = (sizes != null && sizes.isNotEmpty) ? sizes : availableSizes;
+    // Sinkronkan selectedSize jika tidak ada di daftar baru (misal produk lama)
+    if (!displaySizes.contains(selectedSize) && displaySizes.isNotEmpty) {
+      // Jangan setState di build, tapi pastikan tampilan tetap konsisten
+      // selectedSize akan diperbarui saat user memilih.
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Size', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
         const SizedBox(height: 12),
         Row(
-          children: availableSizes.map((size) {
+          children: displaySizes.map((size) {
             final bool isSelected = size == selectedSize;
             return Padding(
               padding: const EdgeInsets.only(right: 10),

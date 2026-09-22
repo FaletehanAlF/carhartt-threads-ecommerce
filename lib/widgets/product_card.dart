@@ -136,9 +136,20 @@ class ProductCard extends StatelessWidget {
             style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 3),
-          Text(
-            product.category,
-            style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600),
+          Row(
+            children: [
+              Text(
+                product.category,
+                style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey.shade600),
+              ),
+              const Spacer(),
+              const Icon(Icons.star, size: 12, color: Color(0xFFB8860B)),
+              const SizedBox(width: 3),
+              Text(
+                product.rating.toStringAsFixed(1),
+                style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87),
+              ),
+            ],
           ),
           const SizedBox(height: 3),
           Text(
