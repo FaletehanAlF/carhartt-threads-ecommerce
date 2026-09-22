@@ -92,8 +92,10 @@ class ProductCard extends StatelessWidget {
           );
         },
         errorBuilder: (context, error, stackTrace) {
+          debugPrint('IMAGE ERROR: ${product.image}');
+          debugPrint('IMAGE ERROR DETAIL: $error');
           return const Center(
-            child: Icon(Icons.image_outlined, size: 40, color: Colors.grey),
+            child: Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
           );
         },
       ),
