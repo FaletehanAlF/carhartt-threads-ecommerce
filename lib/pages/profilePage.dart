@@ -8,10 +8,9 @@ import '../services/favorites.dart';
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-  static const _bg = Color(0xFFF8F8F6);
+  static const _bg = Color(0xFFF7F7F5);
   static const _textPrimary = Color(0xFF111111);
   static const _textSecondary = Color(0xFF8A8A8A);
-  static const _hairline = Color(0xFFEDEDE9);
   static const _primary = Color(0xFFFFC72C);
 
   @override
@@ -30,19 +29,21 @@ class ProfilePage extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        title: Text('Profile', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: _textPrimary)),
+        title: Text('Profile', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700, color: _textPrimary)),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(initial: initial, displayName: displayName, displayEmail: displayEmail),
             const SizedBox(height: 28),
-            _buildAccountInfo(displayName: displayName, displayEmail: displayEmail),
-            const SizedBox(height: 28),
-            _buildMenu(context),
-            const SizedBox(height: 28),
+            _buildAccountSection(displayName: displayName, displayEmail: displayEmail),
+            const SizedBox(height: 24),
+            _buildShoppingGroup(context),
+            const SizedBox(height: 20),
+            _buildSettingsGroup(context),
+            const SizedBox(height: 24),
             _buildLogout(context),
           ],
         ),
@@ -70,11 +71,11 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAccountInfo({required String displayName, required String displayEmail}) {
+  Widget _buildAccountSection({required String displayName, required String displayEmail}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Account', style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: _textSecondary, letterSpacing: 0.8)),
+        Text('Account', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: _textSecondary, letterSpacing: 0.4)),
         const SizedBox(height: 14),
         _InfoRow(label: 'Name', value: displayName),
         const SizedBox(height: 16),
@@ -90,34 +91,51 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildMenu(BuildContext context) {
+  Widget _buildShoppingGroup(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _MenuRow(icon: Icons.receipt_long_outlined, label: 'My Orders', onTap: () => context.push('/orders')),
-        Divider(height: 1, thickness: 0.7, color: _hairline),
-        _MenuRow(icon: Icons.favorite_border, label: 'My Favorites', onTap: () => context.push('/favorites')),
-        Divider(height: 1, thickness: 0.7, color: _hairline),
-        _MenuRow(icon: Icons.settings_outlined, label: 'Settings', onTap: () => context.push('/settings')),
+        Text('Shopping', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: _textSecondary, letterSpacing: 0.4)),
+        const SizedBox(height: 10),
+        _GroupedCard(
+          children: [
+            _GroupRow(icon: Icons.shopping_bag_outlined, label: 'My Orders', onTap: () => context.push('/orders')),
+            const _GroupDivider(),
+            _GroupRow(icon: Icons.favorite_border, label: 'My Favorites', onTap: () => context.push('/favorites')),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsGroup(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Preferences', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w600, color: _textSecondary, letterSpacing: 0.4)),
+        const SizedBox(height: 10),
+        _GroupedCard(
+          children: [
+            _GroupRow(icon: Icons.settings_outlined, label: 'Settings', onTap: () => context.push('/settings')),
+          ],
+        ),
       ],
     );
   }
 
   Widget _buildLogout(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 48,
-      child: OutlinedButton(
+    return Center(
+      child: TextButton(
         onPressed: () {
           AuthService.instance.logout();
           context.go('/login');
         },
-        style: OutlinedButton.styleFrom(
-          foregroundColor: _textPrimary,
-          side: const BorderSide(color: Color(0xFFE2E2E0), width: 1),
+        style: TextButton.styleFrom(
+          foregroundColor: const Color(0xFFE53935),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          backgroundColor: Colors.white,
         ),
-        child: Text('Logout', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500, color: _textPrimary)),
+        child: Text('Logout', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFFE53935))),
       ),
     );
   }
@@ -133,7 +151,7 @@ class _InfoRow extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: const Color(0xFF8A8A8A), letterSpacing: 0.2)),
+        Text(label, style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500, color: const Color(0xFF8A8A8A))),
         const SizedBox(height: 3),
         Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFF111111))),
       ],
@@ -141,18 +159,36 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _MenuRow extends StatelessWidget {
+class _GroupedCard extends StatelessWidget {
+  final List<Widget> children;
+  const _GroupedCard({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE9E9E7), width: 0.9),
+      ),
+      child: Column(children: children),
+    );
+  }
+}
+
+class _GroupRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _MenuRow({required this.icon, required this.label, required this.onTap});
+  const _GroupRow({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: SizedBox(
-        height: 52,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
             Icon(icon, size: 20, color: const Color(0xFF2B2B2B)),
@@ -163,5 +199,14 @@ class _MenuRow extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _GroupDivider extends StatelessWidget {
+  const _GroupDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(height: 1, thickness: 0.7, color: const Color(0xFFEDEDE9), indent: 50);
   }
 }
