@@ -81,8 +81,8 @@ void main() {
       };
       final p = Product.fromJson(json);
       print('fakestore rating map fallback=${p.rating}');
-      // should fallback to 4.8 but not throw
-      expect(p.rating, 4.8);
+      // sekarang di-extract rate 3.9 dengan aman, tidak throw
+      expect(p.rating, 3.9);
       expect(() => p.rating.toStringAsFixed(1), returnsNormally);
     });
 
