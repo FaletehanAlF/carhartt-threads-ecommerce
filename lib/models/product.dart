@@ -53,35 +53,48 @@ class Product {
     final description = json['description']?.toString() ??
         '$title — original Carhartt workwear. Tahan lama untuk kerja harian.';
 
-    // Rating: 1.0 - 5.0
+    // Rating: aman dari null — sesuai instruksi: (json['rating'] as num?)?.toDouble() ?? fallback
+    // Juga handle FakeStore yang rating-nya Map {rate: 3.9}
     double ratingValue = 4.8;
-    if (json['rating'] is num) {
-      ratingValue = (json['rating'] as num).toDouble().clamp(1.0, 5.0);
-    } else if (json['rating'] != null) {
-      ratingValue = double.tryParse(json['rating'].toString())?.clamp(1.0, 5.0) ?? 4.8;
+    final dynamic rawRating = json['rating'];
+    if (rawRating is num) {
+      ratingValue = rawRating.toDouble();
+    } else if (rawRating is Map && rawRating['rate'] is num) {
+      ratingValue = (rawRating['rate'] as num).toDouble();
+    } else if (rawRating is String) {
+      ratingValue = double.tryParse(rawRating) ?? 4.8;
+    } else if (rawRating != null) {
+      // Fallback: coba parse string representasi
+      ratingValue = double.tryParse(rawRating.toString()) ?? 4.8;
     }
+    // clamp aman dan pastikan double
+    ratingValue = ratingValue.clamp(1.0, 5.0).toDouble();
 
-    // Sizes: ["S","M","L","XL"]
-    List<String> sizesValue = const ["S", "M", "L", "XL"];
-    if (json['sizes'] is List) {
-      final parsed = (json['sizes'] as List).map((e) => e.toString().toUpperCase()).where((e) => e.isNotEmpty).toList();
-      if (parsed.isNotEmpty) sizesValue = parsed;
-    }
-
+    // Price: aman dari null — (json['price'] as num?)?.toInt() ?? 0
     int priceValue = 0;
-    final rawPrice = json['price'];
+    final dynamic rawPrice = json['price'];
     if (rawPrice is num) {
-      // Harga FakeStore dalam USD -> konversi kasar ke IDR untuk demo.
-      // Kalau datanya sudah IDR (int besar), pakai langsung.
+      // FakeStore USD -> IDR, kalau sudah IDR pakai langsung
       if (rawPrice < 10000) {
         priceValue = (rawPrice * 15500).round();
       } else {
         priceValue = rawPrice.toInt();
       }
-    } else {
-      final digits =
-          json['price']?.toString().replaceAll(RegExp(r'[^0-9]'), '') ?? '';
+    } else if (rawPrice is String) {
+      final digits = rawPrice.replaceAll(RegExp(r'[^0-9]'), '');
       priceValue = int.tryParse(digits) ?? 0;
+    } else if (rawPrice != null) {
+      final digits = rawPrice.toString().replaceAll(RegExp(r'[^0-9]'), '');
+      priceValue = int.tryParse(digits) ?? 0;
+    }
+    // Fallback final: pastikan int
+    priceValue = (priceValue as num).toInt();
+
+    // Sizes: ["S","M","L","XL"] — fallback jika null/invalid
+    List<String> sizesValue = const ["S", "M", "L", "XL"];
+    if (json['sizes'] is List) {
+      final parsed = (json['sizes'] as List).map((e) => e.toString().toUpperCase()).where((e) => e.isNotEmpty).toList();
+      if (parsed.isNotEmpty) sizesValue = parsed;
     }
     return Product(
       id: id,
