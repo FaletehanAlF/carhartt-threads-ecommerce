@@ -1,7 +1,5 @@
 import '../models/product.dart';
 
-/// Katalog lokal — fallback offline, sinkron dengan API /api/products.
-/// 20 produk: 5 T-Shirt, 5 Hoodie, 5 Jacket, 5 Pants
 const List<String> productCategories = [
   'All',
   'T-Shirt',
